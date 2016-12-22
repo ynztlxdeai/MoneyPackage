@@ -13,6 +13,11 @@
             android:text="开启服务"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"/>
+    <Button
+        android:id="@+id/maina_update"
+        android:text="更新版本"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
 
     <Space
         android:layout_width="match_parent"
@@ -23,7 +28,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:textColor="#000000"
-        android:text="空闲的时候帮我点一下广告啦"/>
+        android:text="空闲的时候帮我点一下广告啦 , 如果功能不能使用 , 请点击版本更新 , 如无新版本且不能使用 , 请向我反馈 , email:ynztlxdeai@163.com , QQ:394266747"/>
     <Space
         android:layout_width="match_parent"
         android:layout_height="20dp"/>

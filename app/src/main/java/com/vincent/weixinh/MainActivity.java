@@ -9,6 +9,8 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.LinearLayout;
 
+import com.tencent.bugly.beta.Beta;
+
 import net.youmi.android.AdManager;
 import net.youmi.android.normal.banner.BannerManager;
 import net.youmi.android.normal.banner.BannerViewListener;
@@ -21,11 +23,12 @@ import pub.devrel.easypermissions.EasyPermissions;
 
 public class MainActivity
         extends AppCompatActivity
-        implements View.OnClickListener , EasyPermissions.PermissionCallbacks, BannerViewListener
+        implements View.OnClickListener, EasyPermissions.PermissionCallbacks, BannerViewListener
 {
 
     private static final int RC_EXTERNAL_STORAGE_PHONE_STATE_PER = 101;
     private Button mBtnStartService;
+    private Button mBtnUpdate;
 
 
     @Override
@@ -53,26 +56,37 @@ public class MainActivity
     private void getPerm() {
         if (!EasyPermissions.hasPermissions(this, Constants.EXTERNAL_STORAGE_PHONE_STATE_PER)) {
             // Ask for one permission
-            EasyPermissions.requestPermissions(this, getString(R.string.rationale_camera),
-                                               RC_EXTERNAL_STORAGE_PHONE_STATE_PER, Constants.EXTERNAL_STORAGE_PHONE_STATE_PER);
+            EasyPermissions.requestPermissions(this,
+                                               getString(R.string.rationale_camera),
+                                               RC_EXTERNAL_STORAGE_PHONE_STATE_PER,
+                                               Constants.EXTERNAL_STORAGE_PHONE_STATE_PER);
         }
-        AdManager.getInstance(this).init(Constants.APPID , Constants.APPSECRET , false , true);
+        AdManager.getInstance(this)
+                 .init(Constants.APPID, Constants.APPSECRET, false, true);
         mBtnStartService = (Button) findViewById(R.id.maina_start_service);
+        mBtnUpdate = (Button) findViewById(R.id.maina_update);
         mBtnStartService.setOnClickListener(this);
+        mBtnUpdate.setOnClickListener(this);
     }
 
     @Override
     public void onClick(View view) {
         switch (view.getId()) {
-                    case R.id.maina_start_service:
-                        Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
-                        startActivity(intent);
-                        break;
+            case R.id.maina_start_service:
+                Intent intent = new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+                startActivity(intent);
+                break;
 
-                    default:
-                        break;
-                }
+            case R.id.maina_update:
+                Beta.checkUpgrade();
+                break;
+
+            default:
+                break;
+        }
     }
+
+
 
     @Override
     public void onPermissionsGranted(int requestCode, List<String> perms) {
@@ -84,18 +98,27 @@ public class MainActivity
         // (Optional) Check whether the user denied any permissions and checked "NEVER ASK AGAIN."
         // This will display a dialog directing them to enable the permission in app settings.
         if (EasyPermissions.somePermissionPermanentlyDenied(this, perms)) {
-            new AppSettingsDialog.Builder(this, getString(R.string.rationale_ask_again))
-                    .setTitle(getString(R.string.title_settings_dialog))
-                    .setPositiveButton(getString(R.string.setting))
-                    .setNegativeButton(getString(R.string.cancel), null /* click listener */)
-                    .setRequestCode(100)
-                    .build()
-                    .show();
+            new AppSettingsDialog.Builder(this, getString(R.string.rationale_ask_again)).setTitle(
+                    getString(R.string.title_settings_dialog))
+                                                                                        .setPositiveButton(
+                                                                                                getString(
+                                                                                                        R.string.setting))
+                                                                                        .setNegativeButton(
+                                                                                                getString(
+                                                                                                        R.string.cancel),
+                                                                                                null /* click listener */)
+                                                                                        .setRequestCode(
+                                                                                                100)
+                                                                                        .build()
+                                                                                        .show();
         }
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+    public void onRequestPermissionsResult(int requestCode,
+                                           @NonNull String[] permissions,
+                                           @NonNull int[] grantResults)
+    {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
 
         // EasyPermissions handles the request result.

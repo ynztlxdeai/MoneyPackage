@@ -25,4 +25,7 @@ public interface Constants  {
     String APPID = "8703780aaeae50c8";
 
     String APPSECRET = "4ff533e9a435e393";
+
+    String TENCENT_APPID = "1b8292003b";
+    String TENCENT_KEY = "26e64f3a-db7a-4af9-a098-4bd8d6ced2b2";
 }
