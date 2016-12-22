@@ -4,6 +4,7 @@ import android.accessibilityservice.AccessibilityService;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.Intent;
 import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
@@ -84,6 +85,12 @@ public class HBAccessibilityService
                     //退出红包
                     Log.e("demo", "退出红包");
                     inputClick("com.tencent.mm:id/gd");
+
+                    //领取了红包以后回到主页面啦
+                    Intent intent = new Intent(Intent.ACTION_MAIN);
+                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //如果是服务里调用，必须加入new task标识
+                    intent.addCategory(Intent.CATEGORY_HOME);
+                    startActivity(intent);
                 }
                 break;
         }

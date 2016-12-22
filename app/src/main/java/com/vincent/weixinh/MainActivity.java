@@ -19,7 +19,6 @@ public class MainActivity
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-
         mBtnStartService = (Button) findViewById(R.id.maina_start_service);
         mBtnStartService.setOnClickListener(this);
 
