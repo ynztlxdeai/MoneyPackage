@@ -73,18 +73,15 @@ public class HBAccessibilityService
                                         .toString();
                 if (className.equals("com.tencent.mm.ui.LauncherUI")) {
                     //点击最后一个红包
-                    Log.e("demo", "点击红包");
                     getLastPacket();
                 } else if (className.equals(
                         "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI"))
                 {
                     //开红包
-                    Log.e("demo", "开红包");
-                    inputClick("com.tencent.mm:id/bg7");
-                    inputClick("com.tencent.mm:id/bdh");
+                    inputClick("com.tencent.mm:id/bg7");//6.3.30--6.3.31
+                    inputClick("com.tencent.mm:id/bdh");//6.3.32
                 } else if (className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")) {
                     //退出红包
-                    Log.e("demo", "退出红包");
                     inputClick("com.tencent.mm:id/gd");
 
                     //领取了红包以后回到主页面啦
