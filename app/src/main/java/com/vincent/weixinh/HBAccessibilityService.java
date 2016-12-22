@@ -81,6 +81,7 @@ public class HBAccessibilityService
                     //开红包
                     Log.e("demo", "开红包");
                     inputClick("com.tencent.mm:id/bg7");
+                    inputClick("com.tencent.mm:id/bdh");
                 } else if (className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")) {
                     //退出红包
                     Log.e("demo", "退出红包");
