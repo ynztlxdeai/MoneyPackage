@@ -1,4 +1,4 @@
-package com.vincent.weixinh;
+package com.vincent.weixinh.service;
 
 import android.accessibilityservice.AccessibilityService;
 import android.annotation.TargetApi;

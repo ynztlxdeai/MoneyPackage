@@ -6,7 +6,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="com.vincent.weixinh.MainActivity">
+    tools:context="com.vincent.weixinh.activity.MainActivity">
 
     <Button
             android:id="@+id/maina_start_service"
@@ -16,6 +16,12 @@
     <Button
         android:id="@+id/maina_update"
         android:text="更新版本"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+    <Button
+        android:id="@+id/maina_share"
+        android:text="分享给好友"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"/>
 

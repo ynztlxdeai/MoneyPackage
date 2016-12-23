@@ -1,4 +1,4 @@
-package com.vincent.weixinh;
+package com.vincent.weixinh.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
@@ -10,6 +10,9 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.tencent.bugly.beta.Beta;
+import com.vincent.weixinh.Constants;
+import com.vincent.weixinh.R;
+import com.vincent.weixinh.utils.ShareUtil;
 
 import net.youmi.android.AdManager;
 import net.youmi.android.normal.banner.BannerManager;
@@ -29,6 +32,7 @@ public class MainActivity
     private static final int RC_EXTERNAL_STORAGE_PHONE_STATE_PER = 101;
     private Button mBtnStartService;
     private Button mBtnUpdate;
+    private Button mBtnShare;
 
 
     @Override
@@ -65,8 +69,10 @@ public class MainActivity
                  .init(Constants.APPID, Constants.APPSECRET, false, true);
         mBtnStartService = (Button) findViewById(R.id.maina_start_service);
         mBtnUpdate = (Button) findViewById(R.id.maina_update);
+        mBtnShare = (Button) findViewById(R.id.maina_share);
         mBtnStartService.setOnClickListener(this);
         mBtnUpdate.setOnClickListener(this);
+        mBtnShare.setOnClickListener(this);
     }
 
     @Override
@@ -79,6 +85,9 @@ public class MainActivity
 
             case R.id.maina_update:
                 Beta.checkUpgrade();
+                break;
+            case R.id.maina_share:
+                ShareUtil.shareLink("http://118.192.153.83/apk/redApk.apk" , "分享红包辅助" , "微信全自动抢红包助手:" , this);
                 break;
 
             default:

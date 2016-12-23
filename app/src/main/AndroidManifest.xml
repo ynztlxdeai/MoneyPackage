@@ -17,7 +17,7 @@
         android:supportsRtl="true"
         android:name=".APP"
         android:theme="@style/AppTheme">
-        <activity android:name=".MainActivity"
+        <activity android:name=".activity.MainActivity"
                   android:configChanges="orientation|keyboardHidden"
                   android:screenOrientation="behind">
             <intent-filter>
@@ -28,7 +28,7 @@
         </activity>
 
         <service
-            android:name=".HBAccessibilityService"
+            android:name=".service.HBAccessibilityService"
             android:enabled="true"
             android:exported="true"
             android:label="@string/label"
