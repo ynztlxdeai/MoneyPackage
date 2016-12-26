@@ -4,25 +4,20 @@ import android.accessibilityservice.AccessibilityService;
 import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.ComponentName;
-import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.graphics.Rect;
-import android.os.Bundle;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
-import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.vincent.weixinh.utils.HongbaoSignature;
-import com.vincent.weixinh.utils.PowerUtil;
 
 import java.util.List;
 
 
 public class HBAccessibilityServiceUpdate
         extends AccessibilityService
-        implements SharedPreferences.OnSharedPreferenceChangeListener {
+        {
     private static final String WECHAT_DETAILS_EN                  = "Details";
     private static final String WECHAT_DETAILS_CH                  = "红包详情";
     private static final String WECHAT_BETTER_LUCK_EN              = "Better luck next time!";
@@ -40,11 +35,7 @@ public class HBAccessibilityServiceUpdate
     private AccessibilityNodeInfo rootNodeInfo, mReceiveNode, mUnpackNode;
     private boolean mLuckyMoneyPicked, mLuckyMoneyReceived;
     private int mUnpackCount = 0;
-    private boolean mMutex = false, mListMutex = false, mChatMutex = false;
     private HongbaoSignature signature = new HongbaoSignature();
-
-    private PowerUtil         powerUtil;
-    private SharedPreferences sharedPreferences;
 
     /**
      * AccessibilityEvent
@@ -53,22 +44,10 @@ public class HBAccessibilityServiceUpdate
      */
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
-        if (sharedPreferences == null) return;
-
         setCurrentActivityName(event);
-
-        /* 检测通知消息 */
-        if (!mMutex) {
-            watchNotifications(event);
-            watchList(event);
-            mListMutex = false;
-        }
-
-        if (!mChatMutex) {
-            mChatMutex = true;
-            watchChat(event);
-            mChatMutex = false;
-        }
+        watchNotifications(event);
+        watchChat(event);
+        watchList(event);
     }
 
     private void watchChat(AccessibilityEvent event) {
@@ -83,7 +62,7 @@ public class HBAccessibilityServiceUpdate
 
         /* 如果已经接收到红包并且还没有戳开 */
         if (mLuckyMoneyReceived && !mLuckyMoneyPicked && (mReceiveNode != null)) {
-            mMutex = true;
+            //mMutex = true;
 
             mReceiveNode.getParent().performAction(AccessibilityNodeInfo.ACTION_CLICK);
             mLuckyMoneyReceived = false;
@@ -104,7 +83,7 @@ public class HBAccessibilityServiceUpdate
                         }
                     });*/
             mUnpackNode.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-            mMutex = false;
+           // mMutex = false;
             mLuckyMoneyPicked = false;
             mUnpackCount = 0;
         }
@@ -129,8 +108,8 @@ public class HBAccessibilityServiceUpdate
     }
 
     private boolean watchList(AccessibilityEvent event) {
-        if (mListMutex) return false;
-        mListMutex = true;
+       /* if (mListMutex) return false;
+        mListMutex = true;*/
         AccessibilityNodeInfo eventSource = event.getSource();
         // Not a message
         if (event.getEventType() != AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED || eventSource == null)
@@ -142,12 +121,13 @@ public class HBAccessibilityServiceUpdate
         if (!nodes.isEmpty() && currentActivityName.contains(WECHAT_LUCKMONEY_GENERAL_ACTIVITY)) {
             AccessibilityNodeInfo nodeToClick = nodes.get(0);
             if (nodeToClick == null) return false;
-            CharSequence contentDescription = nodeToClick.getContentDescription();
+            /*CharSequence contentDescription = nodeToClick.getContentDescription();
             if (contentDescription != null && !signature.getContentDescription().equals(contentDescription)) {
                 nodeToClick.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                 signature.setContentDescription(contentDescription.toString());
                 return true;
-            }
+            }*/
+            nodeToClick.performAction(AccessibilityNodeInfo.ACTION_CLICK);
         }
         return false;
     }
@@ -167,7 +147,6 @@ public class HBAccessibilityServiceUpdate
             try {
                 /* 清除signature,避免进入会话后误判 */
                 signature.cleanSignature();
-
                 notification.contentIntent.send();
             } catch (PendingIntent.CanceledException e) {
                 e.printStackTrace();
@@ -206,10 +185,6 @@ public class HBAccessibilityServiceUpdate
     private void checkNodeInfo(int eventType) {
         if (this.rootNodeInfo == null) return;
 
-        if (signature.commentString != null) {
-            sendComment();
-            signature.commentString = null;
-        }
 
         /* 聊天会话窗口，遍历节点匹配“领取红包”和"查看红包" */
        /* AccessibilityNodeInfo node1 = (sharedPreferences.getBoolean("pref_watch_self", true)) ?
@@ -219,11 +194,9 @@ public class HBAccessibilityServiceUpdate
                 (currentActivityName.contains(WECHAT_LUCKMONEY_CHATTING_ACTIVITY)
                         || currentActivityName.contains(WECHAT_LUCKMONEY_GENERAL_ACTIVITY))) {
             //不拆开的相关
-            String excludeWords = sharedPreferences.getString("pref_watch_exclude_words", "");
-            if (this.signature.generateSignature(node1, excludeWords)) {
+            if (this.signature.generateSignature(node1, "")) {
                 mLuckyMoneyReceived = true;
                 mReceiveNode = node1;
-                Log.d("sig", this.signature.toString());
             }
             return;
         }
@@ -240,36 +213,15 @@ public class HBAccessibilityServiceUpdate
         boolean hasNodes = this.hasOneOfThoseNodes(
                 WECHAT_BETTER_LUCK_CH, WECHAT_DETAILS_CH,
                 WECHAT_BETTER_LUCK_EN, WECHAT_DETAILS_EN, WECHAT_EXPIRES_CH);
-        if (mMutex && eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED && hasNodes
+        if ( eventType == AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED && hasNodes
                 && (currentActivityName.contains(WECHAT_LUCKMONEY_DETAIL_ACTIVITY)
                 || currentActivityName.contains(WECHAT_LUCKMONEY_RECEIVE_ACTIVITY))) {
-            mMutex = false;
             mLuckyMoneyPicked = false;
             mUnpackCount = 0;
             performGlobalAction(GLOBAL_ACTION_BACK);
-            signature.commentString = generateCommentString();
         }
     }
 
-    /**
-     * 发送感谢语句
-     */
-    private void sendComment() {
-        try {
-            AccessibilityNodeInfo outNode =
-                    getRootInActiveWindow().getChild(0).getChild(0);
-            AccessibilityNodeInfo nodeToInput = outNode.getChild(outNode.getChildCount() - 1).getChild(0).getChild(1);
-
-            if ("android.widget.EditText".equals(nodeToInput.getClassName())) {
-                Bundle arguments = new Bundle();
-                arguments.putCharSequence(AccessibilityNodeInfo
-                        .ACTION_ARGUMENT_SET_TEXT_CHARSEQUENCE, signature.commentString);
-                nodeToInput.performAction(AccessibilityNodeInfo.ACTION_SET_TEXT, arguments);
-            }
-        } catch (Exception e) {
-            // Not supported
-        }
-    }
 
 
     private boolean hasOneOfThoseNodes(String... texts) {
@@ -312,48 +264,11 @@ public class HBAccessibilityServiceUpdate
     @Override
     public void onServiceConnected() {
         super.onServiceConnected();
-        this.watchFlagsFromPreference();
     }
-
-    private void watchFlagsFromPreference() {
-        sharedPreferences = PreferenceManager.getDefaultSharedPreferences(this);
-        sharedPreferences.registerOnSharedPreferenceChangeListener(this);
-
-        this.powerUtil = new PowerUtil(this);
-        Boolean watchOnLockFlag = sharedPreferences.getBoolean("pref_watch_on_lock", false);
-        this.powerUtil.handleWakeLock(watchOnLockFlag);
-    }
-
-    @Override
-    public void onSharedPreferenceChanged(SharedPreferences sharedPreferences, String key) {
-        if (key.equals("pref_watch_on_lock")) {
-            Boolean changedValue = sharedPreferences.getBoolean(key, false);
-            this.powerUtil.handleWakeLock(changedValue);
-        }
-    }
-
     @Override
     public void onDestroy() {
-        this.powerUtil.handleWakeLock(false);
         super.onDestroy();
     }
 
-    private String generateCommentString() {
-        if (!signature.others) return null;
 
-        Boolean needComment = sharedPreferences.getBoolean("pref_comment_switch", false);
-        if (!needComment) return null;
-
-        //感谢语句
-        String[] wordsArray = sharedPreferences.getString("pref_comment_words", "").split(" +");
-        if (wordsArray.length == 0) return null;
-
-        //发红包的人
-        Boolean atSender = sharedPreferences.getBoolean("pref_comment_at", false);
-        if (atSender) {
-            return "@" + signature.sender + " " + wordsArray[(int) (Math.random() * wordsArray.length)];
-        } else {
-            return wordsArray[(int) (Math.random() * wordsArray.length)];
-        }
-    }
 }

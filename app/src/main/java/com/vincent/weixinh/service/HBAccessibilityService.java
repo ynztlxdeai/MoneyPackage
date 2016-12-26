@@ -27,7 +27,13 @@ public class HBAccessibilityService
 
 {
 
+    private static final String TAG = "luoxiang";
     private List<AccessibilityNodeInfo> parents;
+    private List<AccessibilityNodeInfo> mOutTimes;
+    private String mClassName = "com.tencent.mm.ui.LauncherUI";
+    private static final String WEI_XIN_HONG_BAO            = "[微信红包]";
+    private static final String LING_QU_HONG_BAO            = "领取红包";
+
 
     /**
      * 当启动服务的时候就会被调用
@@ -36,6 +42,7 @@ public class HBAccessibilityService
     protected void onServiceConnected() {
         super.onServiceConnected();
         parents = new ArrayList<>();
+        mOutTimes = new ArrayList<>();
     }
 
     /**
@@ -44,6 +51,7 @@ public class HBAccessibilityService
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         int eventType = event.getEventType();
+
         switch (eventType) {
             //当通知栏发生改变时
             case AccessibilityEvent.TYPE_NOTIFICATION_STATE_CHANGED:
@@ -69,28 +77,35 @@ public class HBAccessibilityService
                 break;
             //当窗口的状态发生改变时
             case AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED:
-                String className = event.getClassName()
-                                        .toString();
-                if (className.equals("com.tencent.mm.ui.LauncherUI")) {
+                mClassName = event.getClassName()
+                                  .toString();
+                if (mClassName.equals("com.tencent.mm.ui.LauncherUI")) {
                     //点击最后一个红包
                     getLastPacket();
-                } else if (className.equals(
+                } else if (mClassName.equals(
                         "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI"))
                 {
                     //开红包
                     inputClick("com.tencent.mm:id/bg7");//6.3.30--6.3.31
                     inputClick("com.tencent.mm:id/bdh");//6.3.32
-                } else if (className.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")) {
+                } else if (mClassName.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")) {
                     //退出红包
-                    inputClick("com.tencent.mm:id/gd");
+                   // inputClick("com.tencent.mm:id/gd");
 
+                    performGlobalAction(GLOBAL_ACTION_BACK);
                     //领取了红包以后回到主页面啦
-                    Intent intent = new Intent(Intent.ACTION_MAIN);
-                    intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //如果是服务里调用，必须加入new task标识
-                    intent.addCategory(Intent.CATEGORY_HOME);
-                    startActivity(intent);
-                    /*performGlobalAction(GLOBAL_ACTION_BACK);*/
+                    if (parents.size() <= 0){
+                        Intent intent = new Intent(Intent.ACTION_MAIN);
+                        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //如果是服务里调用，必须加入new task标识
+                        intent.addCategory(Intent.CATEGORY_HOME);
+                        startActivity(intent);
+                    }
+
                 }
+                break;
+
+            case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
+
                 break;
         }
     }
@@ -118,8 +133,10 @@ public class HBAccessibilityService
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
         recycle(rootNode);
         if (parents.size() > 0) {
-            parents.get(parents.size() - 1)
-                   .performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            AccessibilityNodeInfo accessibilityNodeInfo = parents.get(parents.size() - 1);
+            accessibilityNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            parents.remove(accessibilityNodeInfo);
+            mOutTimes.add(accessibilityNodeInfo);
         }
     }
 
@@ -140,7 +157,9 @@ public class HBAccessibilityService
                     AccessibilityNodeInfo parent = info.getParent();
                     while (parent != null) {
                         if (parent.isClickable()) {
-                            parents.add(parent);
+                            if (!mOutTimes.contains(parent)){
+                                parents.add(parent);
+                            }
                             break;
                         }
                         parent = parent.getParent();
