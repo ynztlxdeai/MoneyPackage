@@ -19,7 +19,7 @@ import java.util.List;
  * className:	        HBAccessibilityService
  * author:	            Luoxiang
  * time:	            2016/12/2	11:29
- * desc:	            TODO
+ * desc:	            HBAccessibilityServiceUpdate
  */
 
 public class HBAccessibilityService
@@ -89,6 +89,7 @@ public class HBAccessibilityService
                     intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //如果是服务里调用，必须加入new task标识
                     intent.addCategory(Intent.CATEGORY_HOME);
                     startActivity(intent);
+                    /*performGlobalAction(GLOBAL_ACTION_BACK);*/
                 }
                 break;
         }
