@@ -91,7 +91,6 @@ public class HBAccessibilityService
                 } else if (mClassName.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")) {
                     //退出红包
                    // inputClick("com.tencent.mm:id/gd");
-
                     performGlobalAction(GLOBAL_ACTION_BACK);
                     //领取了红包以后回到主页面啦
                     if (parents.size() <= 0){
@@ -104,9 +103,32 @@ public class HBAccessibilityService
                 }
                 break;
 
+            /**
+             * 唯一捕获聊天信息变化的地方
+             * 但是暂时还没法精准捕获
+             */
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-
+                /*if (mClassName.equals("com.tencent.mm.ui.LauncherUI")){
+                    AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+                    if (nodeInfo != null) {
+                        collctionNode(nodeInfo , "com.tencent.mm:id/a4a" );
+                        performClick();
+                    }
+                }
+*/
                 break;
+        }
+    }
+
+    private void collctionNode(AccessibilityNodeInfo nodeInfo , String key ) {
+        List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByViewId(key);
+        if (list.isEmpty()){
+            return;
+        }
+        for (AccessibilityNodeInfo item : list) {
+            if (!mOutTimes.contains(item)){
+               parents.add(item);
+            }
         }
     }
 
@@ -132,6 +154,10 @@ public class HBAccessibilityService
     private void getLastPacket() {
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
         recycle(rootNode);
+        performClick();
+    }
+
+    private void performClick() {
         if (parents.size() > 0) {
             AccessibilityNodeInfo accessibilityNodeInfo = parents.get(parents.size() - 1);
             accessibilityNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
@@ -149,7 +175,7 @@ public class HBAccessibilityService
         if (info.getChildCount() == 0) {
             if (info.getText() != null) {
                 if ("领取红包".equals(info.getText()
-                                      .toString()))
+                                      .toString()) || WEI_XIN_HONG_BAO.equals(info.getText().toString()))
                 {
                     if (info.isClickable()) {
                         info.performAction(AccessibilityNodeInfo.ACTION_CLICK);

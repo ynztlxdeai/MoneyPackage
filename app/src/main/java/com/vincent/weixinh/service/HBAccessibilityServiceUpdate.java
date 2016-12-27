@@ -46,8 +46,8 @@ public class HBAccessibilityServiceUpdate
     public void onAccessibilityEvent(AccessibilityEvent event) {
         setCurrentActivityName(event);
         watchNotifications(event);
-        watchChat(event);
         watchList(event);
+        watchChat(event);
     }
 
     private void watchChat(AccessibilityEvent event) {
