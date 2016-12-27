@@ -1,4 +1,4 @@
-package com.vincent.weixinh;
+package com.vincent.weixinh.base;
 
 import android.app.Application;
 

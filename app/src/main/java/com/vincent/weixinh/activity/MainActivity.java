@@ -10,7 +10,7 @@ import android.widget.Button;
 import android.widget.LinearLayout;
 
 import com.tencent.bugly.beta.Beta;
-import com.vincent.weixinh.Constants;
+import com.vincent.weixinh.base.Constants;
 import com.vincent.weixinh.R;
 import com.vincent.weixinh.utils.ShareUtil;
 

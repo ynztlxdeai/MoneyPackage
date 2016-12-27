@@ -66,7 +66,7 @@ public class HBAccessibilityService
                                 PendingIntent pendingIntent = notification.contentIntent;
                                 try {
                                     pendingIntent.send();
-                                    Log.e("demo", "进入微信");
+                                    Log.e(TAG, "进入微信");
                                 } catch (Exception e) {
                                     e.printStackTrace();
                                 }
@@ -108,14 +108,13 @@ public class HBAccessibilityService
              * 但是暂时还没法精准捕获
              */
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-                /*if (mClassName.equals("com.tencent.mm.ui.LauncherUI")){
-                    AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+                if (mClassName.equals("com.tencent.mm.ui.LauncherUI")){
+                    /*AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
                     if (nodeInfo != null) {
                         collctionNode(nodeInfo , "com.tencent.mm:id/a4a" );
                         performClick();
-                    }
+                    }*/
                 }
-*/
                 break;
         }
     }
