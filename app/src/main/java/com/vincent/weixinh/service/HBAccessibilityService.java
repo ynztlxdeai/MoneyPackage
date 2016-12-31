@@ -6,6 +6,7 @@ import android.app.Notification;
 import android.app.PendingIntent;
 import android.content.Intent;
 import android.os.Build;
+import android.support.annotation.RequiresApi;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
@@ -28,11 +29,12 @@ public class HBAccessibilityService
 {
 
     private static final String TAG = "luoxiang";
-    private List<AccessibilityNodeInfo> parents;
-    private List<AccessibilityNodeInfo> mOutTimes;
+    private ArrayList<AccessibilityNodeInfo> parents;
+    private ArrayList<AccessibilityNodeInfo> mOutTimes;
     private String mClassName = "com.tencent.mm.ui.LauncherUI";
     private static final String WEI_XIN_HONG_BAO            = "[微信红包]";
     private static final String LING_QU_HONG_BAO            = "领取红包";
+    private ArrayList<AccessibilityNodeInfo> mChatList;
 
 
     /**
@@ -43,11 +45,13 @@ public class HBAccessibilityService
         super.onServiceConnected();
         parents = new ArrayList<>();
         mOutTimes = new ArrayList<>();
+        mChatList = new ArrayList<>();
     }
 
     /**
      * 监听窗口变化的回调
      */
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {
         int eventType = event.getEventType();
@@ -86,8 +90,10 @@ public class HBAccessibilityService
                         "com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyReceiveUI"))
                 {
                     //开红包
-                    inputClick("com.tencent.mm:id/bg7");//6.3.30--6.3.31
-                    inputClick("com.tencent.mm:id/bdh");//6.3.32
+                    //inputClick("com.tencent.mm:id/bg7");//6.3.30--6.3.31
+                    //inputClick("com.tencent.mm:id/bdh");//6.3.32
+                    AccessibilityNodeInfo node2 = findOpenButton(getRootInActiveWindow());
+                    node2.performAction(AccessibilityNodeInfo.ACTION_CLICK);
                 } else if (mClassName.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")) {
                     //退出红包
                    // inputClick("com.tencent.mm:id/gd");
@@ -109,23 +115,24 @@ public class HBAccessibilityService
              */
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
                 if (mClassName.equals("com.tencent.mm.ui.LauncherUI")){
-                    /*AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
+                    AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
                     if (nodeInfo != null) {
                         collctionNode(nodeInfo , "com.tencent.mm:id/a4a" );
                         performClick();
-                    }*/
+                    }
                 }
                 break;
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.JELLY_BEAN_MR2)
     private void collctionNode(AccessibilityNodeInfo nodeInfo , String key ) {
         List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByViewId(key);
         if (list.isEmpty()){
             return;
         }
-        for (AccessibilityNodeInfo item : list) {
-            if (!mOutTimes.contains(item)){
+        for (AccessibilityNodeInfo item : list){
+            if (!mChatList.contains(item)){
                parents.add(item);
             }
         }
@@ -207,4 +214,32 @@ public class HBAccessibilityService
     public void onInterrupt() {
 
     }
+
+    /**
+     * 找到打开的按钮
+     * @param node 节点
+     * @return 打开的按钮
+     */
+    private AccessibilityNodeInfo findOpenButton(AccessibilityNodeInfo node) {
+        if (node == null)
+            return null;
+
+        //非layout元素
+        if (node.getChildCount() == 0) {
+            if ("android.widget.Button".equals(node.getClassName()))
+                return node;
+            else
+                return null;
+        }
+
+        //layout元素，遍历找button
+        AccessibilityNodeInfo button;
+        for (int i = 0; i < node.getChildCount(); i++) {
+            button = findOpenButton(node.getChild(i));
+            if (button != null)
+                return button;
+        }
+        return null;
+    }
+
 }
