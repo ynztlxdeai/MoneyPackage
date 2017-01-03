@@ -219,6 +219,7 @@ public class HBAccessibilityServiceUpdate
             mLuckyMoneyPicked = false;
             mUnpackCount = 0;
             performGlobalAction(GLOBAL_ACTION_BACK);
+            performGlobalAction(GLOBAL_ACTION_HOME);
         }
     }
 
@@ -264,6 +265,8 @@ public class HBAccessibilityServiceUpdate
     @Override
     public void onServiceConnected() {
         super.onServiceConnected();
+       /* PowerUtil powerUtil = new PowerUtil(this);
+        powerUtil.handleWakeLock(true);*/
     }
     @Override
     public void onDestroy() {

@@ -4,7 +4,6 @@ import android.accessibilityservice.AccessibilityService;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
-import android.content.Intent;
 import android.os.Build;
 import android.support.annotation.RequiresApi;
 import android.util.Log;
@@ -30,11 +29,10 @@ public class HBAccessibilityService
 
     private static final String TAG = "luoxiang";
     private ArrayList<AccessibilityNodeInfo> parents;
-    private ArrayList<AccessibilityNodeInfo> mOutTimes;
+    private ArrayList<AccessibilityNodeInfo> mChatList;
     private String mClassName = "com.tencent.mm.ui.LauncherUI";
     private static final String WEI_XIN_HONG_BAO            = "[微信红包]";
     private static final String LING_QU_HONG_BAO            = "领取红包";
-    private ArrayList<AccessibilityNodeInfo> mChatList;
 
 
     /**
@@ -44,7 +42,6 @@ public class HBAccessibilityService
     protected void onServiceConnected() {
         super.onServiceConnected();
         parents = new ArrayList<>();
-        mOutTimes = new ArrayList<>();
         mChatList = new ArrayList<>();
     }
 
@@ -92,18 +89,28 @@ public class HBAccessibilityService
                     //开红包
                     //inputClick("com.tencent.mm:id/bg7");//6.3.30--6.3.31
                     //inputClick("com.tencent.mm:id/bdh");//6.3.32
+                    if (inputClick("com.tencent.mm:id/bg7") || inputClick("com.tencent.mm:id/bdh")){
+                        performGlobalAction(GLOBAL_ACTION_BACK);
+                        break;
+                    }
                     AccessibilityNodeInfo node2 = findOpenButton(getRootInActiveWindow());
-                    node2.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                    if (node2 != null){
+                        node2.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                    }else {
+                        performGlobalAction(GLOBAL_ACTION_BACK);
+                    }
+
                 } else if (mClassName.equals("com.tencent.mm.plugin.luckymoney.ui.LuckyMoneyDetailUI")) {
                     //退出红包
                    // inputClick("com.tencent.mm:id/gd");
                     performGlobalAction(GLOBAL_ACTION_BACK);
                     //领取了红包以后回到主页面啦
                     if (parents.size() <= 0){
-                        Intent intent = new Intent(Intent.ACTION_MAIN);
+                        /*Intent intent = new Intent(Intent.ACTION_MAIN);
                         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK); //如果是服务里调用，必须加入new task标识
                         intent.addCategory(Intent.CATEGORY_HOME);
-                        startActivity(intent);
+                        startActivity(intent);*/
+                        performGlobalAction(GLOBAL_ACTION_HOME);
                     }
 
                 }
@@ -114,13 +121,13 @@ public class HBAccessibilityService
              * 但是暂时还没法精准捕获
              */
             case AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED:
-                if (mClassName.equals("com.tencent.mm.ui.LauncherUI")){
+                /*if (mClassName.equals("com.tencent.mm.ui.LauncherUI")){
                     AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
                     if (nodeInfo != null) {
                         collctionNode(nodeInfo , "com.tencent.mm:id/a4a" );
                         performClick();
                     }
-                }
+                }*/
                 break;
         }
     }
@@ -131,11 +138,12 @@ public class HBAccessibilityService
         if (list.isEmpty()){
             return;
         }
-        for (AccessibilityNodeInfo item : list){
-            if (!mChatList.contains(item)){
-               parents.add(item);
-            }
+        AccessibilityNodeInfo info = list.get(0);
+        if (!mChatList.contains(info)){
+            parents.add(info);
+            mChatList.add(info);
         }
+
     }
 
     /**
@@ -143,45 +151,45 @@ public class HBAccessibilityService
      * @param clickId
      */
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN_MR2)
-    private void inputClick(String clickId) {
+    private boolean inputClick(String clickId) {
         AccessibilityNodeInfo nodeInfo = getRootInActiveWindow();
         if (nodeInfo != null) {
             List<AccessibilityNodeInfo> list = nodeInfo.findAccessibilityNodeInfosByViewId(clickId);
             for (AccessibilityNodeInfo item : list) {
-                item.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                return item.performAction(AccessibilityNodeInfo.ACTION_CLICK);
             }
         }
+        return false;
     }
 
-    /**
+   /* *//**
      * 获取List中最后一个红包，并进行模拟点击
-     */
+     *//*
     @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
     private void getLastPacket() {
         AccessibilityNodeInfo rootNode = getRootInActiveWindow();
         recycle(rootNode);
         performClick();
-    }
+    }*/
 
     private void performClick() {
         if (parents.size() > 0) {
             AccessibilityNodeInfo accessibilityNodeInfo = parents.get(parents.size() - 1);
             accessibilityNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
             parents.remove(accessibilityNodeInfo);
-            mOutTimes.add(accessibilityNodeInfo);
         }
     }
 
-    /**
+   /* *//**
      * 回归函数遍历每一个节点，并将含有"领取红包"存进List中
      *
      * @param info
-     */
+     *//*
     public void recycle(AccessibilityNodeInfo info) {
         if (info.getChildCount() == 0) {
             if (info.getText() != null) {
                 if ("领取红包".equals(info.getText()
-                                      .toString()) || WEI_XIN_HONG_BAO.equals(info.getText().toString()))
+                                      .toString()))
                 {
                     if (info.isClickable()) {
                         info.performAction(AccessibilityNodeInfo.ACTION_CLICK);
@@ -205,7 +213,7 @@ public class HBAccessibilityService
                 }
             }
         }
-    }
+    }*/
 
     /**
      * 中断服务的回调
@@ -241,5 +249,54 @@ public class HBAccessibilityService
         }
         return null;
     }
+
+
+    /**
+     * 获取List中最后一个红包，并进行模拟点击
+     */
+    private void getLastPacket() {
+        recycle(getRootInActiveWindow());
+        if(parents.size()>0){
+//            parents.get(parents.size() - 1).performAction(AccessibilityNodeInfo.ACTION_CLICK);
+            AccessibilityNodeInfo accessibilityNodeInfo = parents.get(parents.size() - 1);
+            if (!mChatList.contains(accessibilityNodeInfo)){
+                accessibilityNodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                parents.remove(accessibilityNodeInfo);
+                mChatList.add(accessibilityNodeInfo);
+            }
+        }
+    }
+
+    /**
+     * 回归函数遍历每一个节点，并将含有"领取红包"存进List中
+     *
+     * @param info
+     */
+    public void recycle(AccessibilityNodeInfo info) {
+        if (info.getChildCount() == 0) {
+            if (info.getText() != null) {
+                if ("领取红包".equals(info.getText().toString())) {
+                    if (info.isClickable()) {
+                        info.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                    }
+                    AccessibilityNodeInfo parent = info.getParent();
+                    while (parent != null) {
+                        if (parent.isClickable()) {
+                            parents.add(parent);
+                            break;
+                        }
+                        parent = parent.getParent();
+                    }
+                }
+            }
+        } else {
+            for (int i = 0; i < info.getChildCount(); i++) {
+                if (info.getChild(i) != null) {
+                    recycle(info.getChild(i));
+                }
+            }
+        }
+    }
+
 
 }
