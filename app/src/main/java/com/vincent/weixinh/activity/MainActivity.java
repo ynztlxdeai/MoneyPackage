@@ -87,7 +87,7 @@ public class MainActivity
                 Beta.checkUpgrade();
                 break;
             case R.id.maina_share:
-                ShareUtil.shareLink("http://118.192.153.83/apk/redApk.apk?" , "分享红包辅助" , "微信全自动抢红包助手:" , this);
+                ShareUtil.shareLink("http://118.192.153.83/apk/redApk.apk" , "分享红包辅助" , "微信全自动抢红包助手(注:如果下载连接中有.1后缀,请手动去掉):" , this);
                 break;
 
             default:
