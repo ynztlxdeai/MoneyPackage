@@ -1,8 +1,8 @@
 <component name="libraryTable">
   <library name="bugly_crashreport_upgrade-1.2.1-">
     <CLASSES>
-      <root url="file://$PROJECT_DIR$/app/build/intermediates/exploded-aar/bugly_crashreport_upgrade-1.2.1/res" />
-      <root url="jar://$PROJECT_DIR$/app/build/intermediates/exploded-aar/bugly_crashreport_upgrade-1.2.1/jars/classes.jar!/" />
+      <root url="jar://$USER_HOME$/.android/build-cache/b2aa41940266e9e862b29290ecd2981c84f022dc/output/jars/classes.jar!/" />
+      <root url="file://$USER_HOME$/.android/build-cache/b2aa41940266e9e862b29290ecd2981c84f022dc/output/res" />
     </CLASSES>
     <JAVADOC />
     <SOURCES />
